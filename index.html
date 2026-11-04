@@ -125,7 +125,8 @@ h1{font-size:clamp(3rem,13vw,6rem)}
 section[id]{scroll-margin-top:84px}
 #home{scroll-margin-top:0}
 .arch:has(img[src^="data:image/webp"]){background:linear-gradient(160deg,color-mix(in srgb,var(--c5) 26%,transparent),color-mix(in srgb,var(--c3) 70%,transparent));padding:0;align-items:flex-end}
-.arch img[src^="data:image/webp"]{object-fit:cover;object-position:center bottom}
+.arch.ph{padding:0;align-items:flex-end;overflow:hidden}
+.arch.ph img{position:relative;z-index:1;object-fit:cover;object-position:center bottom}
 .tm{text-align:center}
 .nm{margin-top:16px;font-weight:700;font-size:1.3rem;color:var(--c1)}
 
@@ -175,7 +176,7 @@ section[id]{scroll-margin-top:84px}
 .tc .nm{margin:0;color:var(--c5);font-size:1.4rem}
 .ar{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0 14px;font-weight:300;opacity:.9}
 .tn{display:block;padding:11px 16px;border-radius:999px;background:var(--c5);color:var(--c1);font-weight:700;text-align:center;letter-spacing:.03em}
-.arch:has(img[src^="data:image/webp"]){background:linear-gradient(165deg,var(--c4),var(--c3) 55%,var(--c2));border:1px solid color-mix(in srgb,var(--c5) 35%,transparent);-webkit-backdrop-filter:none;backdrop-filter:none}
+.arch.ph{background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--c5) 32%,transparent),transparent 58%),linear-gradient(165deg,var(--c4),var(--c3) 55%,var(--c2));border:1px solid color-mix(in srgb,var(--c5) 35%,transparent);-webkit-backdrop-filter:none;backdrop-filter:none}
 
 /* كروت الخدمات */
 .svcs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -186,6 +187,21 @@ section[id]{scroll-margin-top:84px}
 .row.svc .ico{width:42px;height:42px}
 .row.svc:last-child{grid-column:1/-1}
 @media (min-width:760px){.svcs{grid-template-columns:repeat(3,minmax(0,1fr))}.row.svc:last-child{grid-column:auto}}
+
+/* كروت التواصل + كروت الخطوات */
+.s4{background:linear-gradient(var(--c3),var(--c2));padding-bottom:72px}
+.ar{margin:6px 0 8px}
+.tnum{margin:0 0 12px;color:var(--c5);opacity:.85;font-size:.95rem;letter-spacing:.04em;text-align:center}
+.tb{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tb a{display:block;padding:11px 8px;border-radius:999px;font-weight:700;text-align:center}
+.tb .b1{background:var(--c5);color:var(--c1)}
+.tb .b2{border:1.5px solid var(--c5);color:var(--c5);background:color-mix(in srgb,var(--c5) 10%,transparent)}
+.steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.steps .st{padding:16px;border-radius:26px;border-top:1px solid color-mix(in srgb,var(--c5) 26%,transparent)}
+.steps .st i{font-size:1.8rem}
+.steps .st p{font-size:.9rem;line-height:1.6;margin-top:6px}
+.steps .st:last-child{grid-column:1/-1}
+@media (min-width:760px){.steps{grid-template-columns:repeat(3,minmax(0,1fr))}.steps .st:last-child{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -226,6 +242,7 @@ const SITE = {
     "الممرض يوصلك ويبدأ الرعاية."
   ]
 };
+const waLink = n => "https://wa.me/" + n.replace(/\D/g, "").replace(/^0/, "20");
 const tel = n => "tel:+" + n.replace(/\D/g, "").replace(/^0/, "20");
 
 const svg = (kids, cls) => h("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round", className: cls, "aria-hidden": "true" }, kids);
@@ -276,7 +293,7 @@ const Deco = () => h(React.Fragment, null,
       h("path", { d: "M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" }))));
 
 const Photo = ({ src, label, className }) =>
-  h("div", { className: className || "arch" },
+  h("div", { className: (className || "arch") + (src ? " ph" : "") },
     src ? h("img", { src, alt: label }) : h("div", null, ICONS.heart("big"), h("div", null, label)));
 
 const Hero = () =>
@@ -328,7 +345,7 @@ const Steps = () =>
             h("p", null, s))))));
 
 const Team = () =>
-  h("section", { className: "s4" },
+  h("section", { className: "s4", id: "contact" },
     h(Scatter, { items: [
       { n: "scrubs", t: "12%", l: "3%", s: 150, r: -8 },
       { n: "syringe", t: "50%", rt: "3%", s: 150, r: -35 },
@@ -338,7 +355,7 @@ const Team = () =>
       { n: "stethoscope", t: "66%", l: "5%", s: 120, r: 10 }
     ] }),
     h("div", { className: "in" },
-      h("h2", null, "فريقنا"),
+      h("h2", null, "تواصل معنا"),
       h("div", { className: "arches" },
         SITE.team.map((t, i) => {
           const ph = SITE.phones.find(p => p.who === t.name);
@@ -348,22 +365,11 @@ const Team = () =>
             h("div", { className: "ar" },
               h("svg", { viewBox: "0 0 24 24", width: 16, height: 16, "aria-hidden": "true" }, h("path", { d: "M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z", fill: "currentColor" })),
               h("span", null, t.area)),
-            ph && h("a", { className: "tn", href: tel(ph.number), dir: "ltr" }, ph.number));
+            ph && h("div", { className: "tnum", dir: "ltr" }, ph.number),
+            ph && h("div", { className: "tb" },
+              h("a", { className: "b1", href: tel(ph.number) }, "اتصل"),
+              h("a", { className: "b2", href: waLink(ph.number) }, "واتساب")));
         }))));
-
-const Contact = () =>
-  h("section", { className: "s5", id: "contact" },
-    h(Scatter, { dark: true, items: [
-      { n: "stethoscope", t: "8%", l: "4%", s: 150, r: 12 },
-      { n: "syringe", t: "40%", rt: "4%", s: 160, r: 40 },
-      { n: "pill", t: "72%", l: "55%", s: 90, r: -25 }
-    ] }),
-    h("div", { className: "in" },
-      h("h2", null, "اتصل بينا"),
-      SITE.phones.map(p =>
-        h("div", { className: "num", key: p.who },
-          h("span", null, p.who),
-          h("a", { href: tel(p.number) }, p.number)))));
 
 const Footer = () =>
   h("section", { className: "s6" },
@@ -371,27 +377,6 @@ const Footer = () =>
       h("div", { className: "beat" }, ICONS.heart()),
       h("b", null, SITE.name),
       h("p", null, "التمريض المنزلي في " + SITE.city)));
-
-const FloatBar = () => {
-  const [open, setOpen] = React.useState(null);
-  React.useEffect(() => {
-    if (!open) return;
-    const k = e => { if (e.key === "Escape") setOpen(null); };
-    window.addEventListener("keydown", k);
-    return () => window.removeEventListener("keydown", k);
-  }, [open]);
-  const waLink = n => "https://wa.me/" + n.replace(/\D/g, "").replace(/^0/, "20");
-  const toggle = k => e => { e.preventDefault(); setOpen(open === k ? null : k); };
-  return h(React.Fragment, null,
-    open && h("div", { className: "pk-bg", onClick: () => setOpen(null) }),
-    open && h("div", { className: "pk", role: "menu" },
-      h("div", { className: "pk-t" }, open === "call" ? "اختار الممرض واتصل" : "اختار الممرض وابعتله واتساب"),
-      SITE.phones.map(p => h("a", { key: p.who, role: "menuitem", href: open === "call" ? tel(p.number) : waLink(p.number), onClick: () => setOpen(null) },
-        h("span", null, "الممرض " + p.who), h("small", { dir: "ltr" }, p.number)))),
-    h("div", { className: "fl" },
-      h("a", { className: "wa", href: waLink(SITE.phones[0].number), onClick: toggle("wa") }, "واتساب"),
-      h("a", { className: "call", href: tel(SITE.phones[0].number), onClick: toggle("call") }, "اتصل")));
-};
 
 const NAV_ITEMS = [["home", "الرئيسية"], ["services", "خدماتنا"], ["contact", "تواصل معنا"]];
 const Nav = () => {
@@ -477,7 +462,7 @@ const Light = () => {
 
 const App = () =>
   h(React.Fragment, null,
-    h(Nav), h(Hero), h(Services), h(Steps), h(Team), h(Contact), h(Footer), h(FloatBar), h(Light));
+    h(Nav), h(Hero), h(Services), h(Steps), h(Team), h(Footer), h(Light));
 
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 </script>
